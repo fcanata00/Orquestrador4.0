@@ -1,27 +1,26 @@
 #!/usr/bin/env bash
-# ports-logs.sh — biblioteca de logging/cores para o sistema Ports (LFS/BLFS)
+# - ports-logs.sh — biblioteca de logging/cores para o sistema Ports (LFS/BLFS)
 # - Saída colorida, limpa, somente etapas no terminal
 # - Log completo por etapa/pacote em arquivo
 # - Rotação por quantidade, idade e tamanho
 # - Seguro para concorrência (flock)
 # - Sem 'set -e' para não matar pipelines do chamador
-
+# - Garantir que o usuário (portsbuild) tenha permissão em /var/log/ports
+# - chgrp -R ports /var/log/ports
+# - chmod -R 0775 /var/log/ports
+# - setfacl -R -m d:g:ports:rwx /var/log/ports
 # Requisitos: bash >= 4.2, coreutils (date, mkdir, install, stat, awk, sed), flock
-
 # =========================
 # Opções de shell seguras
 # =========================
 set -uo pipefail
-
 # =========================
 # Configuração (defaults)
 # =========================
 : "${PORTS_ETC_CONF:=/etc/ports.conf}"
 : "${PORTS_USER_CONF:=~/.config/ports/config}"
-
 # Expande ~ com eval seguro
 PORTS_USER_CONF="$(eval echo "$PORTS_USER_CONF")"
-
 # Defaults (podem ser sobrescritos pelos confs)
 : "${LOG_ROOT:=/var/log/ports}"
 : "${LOG_COLOR:=auto}"           # auto|on|off
@@ -31,7 +30,6 @@ PORTS_USER_CONF="$(eval echo "$PORTS_USER_CONF")"
 : "${LOG_ROTATE_DAYS:=30}"       # apagar logs com mais de D dias (0 = desabilita)
 : "${LOG_ROTATE_SIZE:=104857600}"# 100M por arquivo (0 = desabilita)
 : "${LOG_PROGRESS_PREFIX:=@progress}"  # prefixo para "vazar" linhas ao terminal no log::tee
-
 # =========================
 # Carregar configurações
 # =========================
@@ -42,7 +40,6 @@ _ports_logs_source_if() {
 }
 _ports_logs_source_if "$PORTS_ETC_CONF"
 _ports_logs_source_if "$PORTS_USER_CONF"
-
 # =========================
 # Níveis
 # =========================
@@ -60,7 +57,6 @@ __level_num() { echo "${__LOG_LEVEL_NUM[$1]:-999}"; }
 
 __TERM_MIN="$(__level_num "$LOG_TERMINAL_LEVEL")"
 __FILE_MIN="$(__level_num "$LOG_FILE_LEVEL")"
-
 # =========================
 # Cores (ANSI)
 # =========================
@@ -80,7 +76,6 @@ __detect_color() {
   esac
 }
 __detect_color
-
 # Códigos
 if (( __COLOR_ON )); then
   C_RESET=$'\033[0m'
@@ -103,7 +98,6 @@ log::set_color() {
   esac
   __detect_color
 }
-
 # =========================
 # Variáveis de contexto
 # =========================
