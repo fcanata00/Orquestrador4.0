@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #===============================================================================
 # ports-build.sh — M6 Build Manager & Secure Chroot Builder
-# Author: ChatGPT (GPT-5 Thinking) — Production-grade module
+# Author: fcanata — Production-grade module
 # License: MIT
 #===============================================================================
 # HARD REQUIREMENTS:
@@ -12,9 +12,7 @@
 # - cgroup v2 mounted at /sys/fs/cgroup (systemd preferred, but fallback works)
 # - Existing modules: M1 logs, M2 lock, M3 db, M4 deps, M5 fetch
 #===============================================================================
-
 set -o errexit -o pipefail -o nounset -o errtrace
-
 #------------------------------------------------------------------------------
 # Module bootstrap
 #------------------------------------------------------------------------------
